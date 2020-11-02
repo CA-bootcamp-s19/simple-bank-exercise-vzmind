@@ -13,7 +13,7 @@ contract SimpleBank {
     //
     
     /* Fill in the keyword. Hint: We want to protect our users balance from other contracts*/
-    mapping (address => uint) private balances;
+    mapping (address => uint) public balances;
     
     /* Fill in the keyword. We want to create a getter function and allow contracts to be able to see if a user is enrolled.  */
     mapping (address => bool) public enrolled;
@@ -60,16 +60,16 @@ contract SimpleBank {
     // allows function to run locally/off blockchain
     function getBalance() public view returns (uint) {
         /* Get the balance of the sender of this transaction */
-        return balances[owner];
+        return balances[msg.sender];
     }
 
     /// @notice Enroll a customer with the bank
     /// @return The users enrolled status
     // Emit the appropriate event
     function enroll() public returns (bool){
-        enrolled[owner]= true;
-        emit LogEnrolled(owner);
-        return true;
+        enrolled[msg.sender]= true;
+        emit LogEnrolled(msg.sender);
+        return enrolled[msg.sender];
     }
 
     /// @notice Deposit ether into bank
@@ -82,10 +82,10 @@ contract SimpleBank {
         {
             /* Add the amount to the user's balance, call the event associated with a deposit,
             then return the balance of the user */
-            require(enrolled[owner] == true);
-            balances[owner] += msg.value;
+            require(enrolled[msg.sender] == true);
+            balances[msg.sender] += msg.value;
             emit LogDepositMade(msg.sender, msg.value);
-            return balances[owner];
+            return balances[msg.sender];
         }
 
     /// @notice Withdraw ether from bank
@@ -98,10 +98,10 @@ contract SimpleBank {
            Subtract the amount from the sender's balance, and try to send that amount of ether
            to the user attempting to withdraw. 
            return the user's balance.*/
-        require(balances[owner] >= withdrawAmount);
-        balances[owner] = balances[owner]- withdrawAmount;
-        emit LogWithdrawal(msg.sender, withdrawAmount, balances[owner]);
-        return balances[owner];
+        require(balances[msg.sender] >= withdrawAmount);
+        balances[msg.sender] = balances[msg.sender]- withdrawAmount;
+        emit LogWithdrawal(msg.sender, withdrawAmount, balances[msg.sender]);
+        return balances[msg.sender];
     }
 
 }
